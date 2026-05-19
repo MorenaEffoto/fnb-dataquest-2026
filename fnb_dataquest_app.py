@@ -18,8 +18,11 @@ warnings.filterwarnings("ignore")
 # 1. DATA LOADING & CLEANING
 # ─────────────────────────────────────────────
 
-def load_and_clean(path="loan_book_csv.xlsx"):
-    df = pd.read_excel(path)
+def load_and_clean(path="loan_book.csv"):
+    if path.endswith(".csv"):
+        df = pd.read_csv(path)
+    else:
+        df = pd.read_excel(path)
 
     # Standardise messy categoricals
     def normalise(val, mapping):
@@ -748,7 +751,7 @@ def build_app(df, pipe, woe_maps, feature_cols, train_auc, test_auc,
 
 if __name__ == "__main__":
     print("⏳ Loading and cleaning data...")
-    df = load_and_clean("loan_book_csv.xlsx")
+    df = load_and_clean("loan_book.csv")
 
     print("⏳ Fitting logistic regression model...")
     pipe, woe_maps, feature_cols, train_auc, test_auc, coef_df, test_proba, y_test, test_df = fit_model(df)
