@@ -747,7 +747,7 @@ def build_app(df, pipe, woe_maps, feature_cols, train_auc, test_auc,
 
 # ─────────────────────────────────────────────
 # MAIN
-# ─────────────────────────────────────────────
+#─────────────────────────────────────────────
 
 if __name__ == "__main__":
     print("⏳ Loading and cleaning data...")
