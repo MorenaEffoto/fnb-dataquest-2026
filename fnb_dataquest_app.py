@@ -690,39 +690,23 @@ def build_app(df, pipe, woe_maps, feature_cols, train_auc, test_auc,
 # MAIN
 # ─────────────────────────────────────────────
 
-if __name__ == "__main__":
-    import os
-    data_file = "loan_book.csv" if os.path.exists("loan_book.csv") else "loan_book_csv.xlsx"
 
-    print("Loading and cleaning data...")
-    df = load_and_clean(data_file)
+import os
 
-    print("Fitting logistic regression model...")
-    pipe, woe_maps, feature_cols, train_auc, test_auc, coef_df, test_proba, y_test, test_df = fit_model(df)
-    print(f"Model ready — Train AUC: {train_auc:.3f} | Test AUC: {test_auc:.3f}")
-
-    print("Starting app...")
-    app = build_app(df, pipe, woe_maps, feature_cols, train_auc, test_auc,
-                    coef_df, test_proba, y_test, test_df)
-
-    print("\nApp running at http://127.0.0.1:8050\n")
-    app.run(debug=False, port=8050)
-
-server = build_app(
-    *([None] * 9)  # placeholder — overridden below at module level
-).server if False else None
-
-# For Render/gunicorn deployment
-import os as _os
-if _os.path.exists("loan_book.csv"):
+# Load data — works both locally and on Render
+if os.path.exists("loan_book_csv.xlsx"):
+    _df = load_and_clean("loan_book_csv.xlsx")
+elif os.path.exists("loan_book.csv"):
     _df = load_and_clean("loan_book.csv")
-elif _os.path.exists("loan_book_csv.xlsx"):
-    _df = load_and_calean("loan_book_csv.xlsx")
 else:
-    _df = None
+    raise FileNotFoundError("No data file found. Make sure loan_book_csv.xlsx or loan_book.csv is in the same folder.")
 
-if _df is not None:
-    _pipe, _woe_maps, _feature_cols, _train_auc, _test_auc, _coef_df, _test_proba, _y_test, _test_df = fit_model(_df)
-    _app = build_app(_df, _pipe, _woe_maps, _feature_cols, _train_auc, _test_auc,
-                     _coef_df, _test_proba, _y_test, _test_df)
-    server = _app.server
+_pipe, _woe_maps, _feature_cols, _train_auc, _test_auc, _coef_df, _test_proba, _y_test, _test_df = fit_model(_df)
+_app = build_app(_df, _pipe, _woe_maps, _feature_cols, _train_auc, _test_auc,
+                 _coef_df, _test_proba, _y_test, _test_df)
+
+server = _app.server  # for gunicorn on Render
+
+if __name__ == "__main__":
+    print("App running at http://127.0.0.1:8050")
+    _app.run(debug=False, port=8050)
